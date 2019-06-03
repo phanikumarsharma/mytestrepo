@@ -1,4 +1,4 @@
-﻿$subsriptionid = Get-AutomationVariable -Name 'subscriptionid'
+$subscriptionid = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
 $Username = Get-AutomationVariable -Name 'Username'
