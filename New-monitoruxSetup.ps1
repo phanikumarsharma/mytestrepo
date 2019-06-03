@@ -9,7 +9,8 @@ $WebApp = Get-AutomationVariable -Name 'webApp'
 Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
 New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\wvd-monitoring-ux.zip" -DestinationPath "C:\wvd-monitoring-ux" -ErrorAction SilentlyContinue
-$modules="https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-monitoring/rdmi-peopletech/msft-rdmi-saas-offering/scripts/msft-rdmi-saas-offering.zip"
+
+$modules="https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-mgmt-ux/wvd-templates/wvd-management-ux/deploy/scripts/msft-wvd-saas-offering.zip"
 Invoke-WebRequest -Uri $modules -OutFile "C:\msft-rdmi-saas-offering.zip"
 New-Item -Path "C:\msft-rdmi-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-saas-offering" -ErrorAction SilentlyContinue
