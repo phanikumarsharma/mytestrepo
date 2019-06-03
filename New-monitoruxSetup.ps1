@@ -17,6 +17,10 @@ Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-s
 $AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-wvd-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
 Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
+
+#$AzureModulesPath = Get-ChildItem -Path "C:\wvd-monitoring-ux\wvd-monitoring-ux"| Where-Object {$_.FullName -match 'AzureModules.zip'}
+#Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
+
 Import-Module AzureRM.Resources
 Import-Module AzureRM.Profile
 Import-Module AzureRM.Websites
@@ -61,7 +65,7 @@ Import-Module AzureAD
     # Upload files recursively 
     $webclient = New-Object -TypeName System.Net.WebClient
     $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-    $files = Get-ChildItem -Path $appdirectory -Recurse #Removed IsContainer condition
+    $files = Get-ChildItem -Path $WebAppDirectory -Recurse #Removed IsContainer condition
     foreach ($file in $files)
     {
         $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
