@@ -65,7 +65,7 @@ Import-Module AzureAD
     # Upload files recursively 
     $webclient = New-Object -TypeName System.Net.WebClient
     $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-    $files = Get-ChildItem -Path $WebAppDirectory -Recurse #Removed IsContainer condition
+    $files = Get-ChildItem -Path $WebAppDirectory -Recurse 
     foreach ($file in $files)
     {
         $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
@@ -77,16 +77,12 @@ Import-Module AzureAD
             $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
             $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
             $ftprequest.UseBinary = $true
-
             $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-
             $response = $ftprequest.GetResponse();
             $response.StatusDescription
             continue
         }
-
         "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
-
         $webclient.UploadFile($uri, $file.FullName)
     } 
     $webclient.Dispose()
@@ -95,7 +91,6 @@ Import-Module AzureAD
     {
         Write-Output $_.Exception.Message
     }
-
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
