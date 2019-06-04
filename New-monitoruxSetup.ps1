@@ -39,9 +39,8 @@ Import-Module AzureAD
     Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
     #$CodeBitPath= "C:\monitor-ux\monitor-ux"
-    $WebAppDirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
-    try
-    {
+    $appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
+    Test-Path $appdirectory
     # Get Url of Web-App
     $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
     $WebUrl = $GetWebApp.DefaultHostName
@@ -49,48 +48,50 @@ Import-Module AzureAD
     #$requiredAccessName=$ResourceURL.Split("/")[3]
     $redirectURL="https://"+"$WebUrl"+"/"
 
-    Set-Location $WebAppDirectory
-    $WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
+    Set-Location $appdirectory
+    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
 
-    # Get publishing profile for the web app
-    $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
+# Get publishing profile for the web app
+$xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
-    $xml = [xml]$xml
+# Not in Original Script
+$xml = [xml]$xml
 
-    # Extract connection information from publishing profile
-    $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
-    $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
-    $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
+# Extract connection information from publishing profile
+$username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
+$password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
+$url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
+#$weburl=$url.Replace("/wwwroot","")
+# Upload files recursively 
+$webclient = New-Object -TypeName System.Net.WebClient
+$webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
+$files = Get-ChildItem -Path $appdirectory -Recurse 
+foreach ($file in $files)
+{
+    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
+    $uri = New-Object System.Uri("$url/$relativepath")
 
-    # Upload files recursively 
-    $webclient = New-Object -TypeName System.Net.WebClient
-    $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-    $files = Get-ChildItem -Path $WebAppDirectory -Recurse 
-    foreach ($file in $files)
+    if($file.PSIsContainer)
     {
-        $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
-        $uri = New-Object System.Uri("$url/$relativepath")
+        $uri.AbsolutePath + "is Directory"
+        $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
+        $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
+        $ftprequest.UseBinary = $true
 
-        if($file.PSIsContainer)
-        {
-            $uri.AbsolutePath + "is Directory"
-            $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
-            $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
-            $ftprequest.UseBinary = $true
-            $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-            $response = $ftprequest.GetResponse();
-            $response.StatusDescription
-            continue
-        }
-        "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
-        $webclient.UploadFile($uri, $file.FullName)
-    } 
-    $webclient.Dispose()
+        $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
+
+        $response = $ftprequest.GetResponse();
+        $response.StatusDescription
+        continue
     }
-    catch [Exception]
-    {
-        Write-Output $_.Exception.Message
-    }
+
+    "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
+
+    $webclient.UploadFile($uri, $file.FullName)
+} 
+$webclient.Dispose()
+
+
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
