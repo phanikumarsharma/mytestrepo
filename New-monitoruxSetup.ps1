@@ -95,9 +95,8 @@ $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
 }
 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
+Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 $newURL = "$WebUrl/security/signin-callback"
-
-# Get Azure AD App
 $app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
 $replyUrls = $app.ReplyUrls
 # Add Reply URL if not already in the list 
@@ -105,7 +104,6 @@ if ($replyUrls -NotContains $newURL) {
     $replyUrls.Add($newURL)
     Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
 }
-
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
