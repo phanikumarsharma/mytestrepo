@@ -52,6 +52,7 @@ Set-Location $appdirectory
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
+# Not in Original Script
 $xml = [xml]$xml
 
 # Extract connection information from publishing profile
@@ -61,11 +62,10 @@ $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").
 # Upload files recursively 
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-#$files = Get-ChildItem -Path $appdirectory -Recurse -Force
-$files = Get-ChildItem -Recurse -File -Force
+$files = Get-ChildItem -Path $appdirectory -Recurse -Force
 foreach ($file in $files)
 {
-    $relativepath =(Resolve-Path -Path $file.FullName -Relative).Replace('\', '/')
+    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
     $uri = New-Object System.Uri("$url/$relativepath")
 
     if($file.PSIsContainer)
