@@ -86,7 +86,7 @@ foreach ($file in $files)
     }
     "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
     $webclient.UploadFile($uri, $file.FullName)
-} 
+} Out-Null
 $webclient.Dispose()
 
 
