@@ -49,23 +49,6 @@ Import-Module AzureAD
                  
     #$requiredAccessName=$ResourceURL.Split("/")[3]
     $redirectURL="https://"+"$WebUrl"+"/"
-    
-Write-Output "Adding App settings to WebApp"
-$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
-                    "AzureAd:ClientSecret" = "$ClientSecret";
-}
-Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
-
-$newURL = "$WebUrl/security/signin-callback"
-
-# Get Azure AD App
-$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
-$replyUrls = $app.ReplyUrls
-# Add Reply URL if not already in the list 
-if ($replyUrls -NotContains $newURL) {
-    $replyUrls.Add($newURL)
-    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
-}
 
 Set-Location $appdirectory
 
@@ -108,6 +91,22 @@ foreach ($file in $files)
 } Out-Null
 $webclient.Dispose()
 
+Write-Output "Adding App settings to WebApp"
+$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
+                    "AzureAd:ClientSecret" = "$ClientSecret";
+}
+Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
+
+$newURL = "$WebUrl/security/signin-callback"
+
+# Get Azure AD App
+$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
+$replyUrls = $app.ReplyUrls
+# Add Reply URL if not already in the list 
+if ($replyUrls -NotContains $newURL) {
+    $replyUrls.Add($newURL)
+    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
+}
 
 
 
