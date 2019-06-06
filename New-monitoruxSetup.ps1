@@ -37,20 +37,7 @@ Import-Module AzureAD
     $Cred = Get-AutomationPSCredential -Name $CredentialAssetName
     Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
-    #$CodeBitPath= "C:\monitor-ux\monitor-ux"
-    <#$appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
-
-    # Get Url of Web-App
-    $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
-    $WebUrl = $GetWebApp.DefaultHostName
-               
-    $redirectURL="https://"+"$WebUrl"+"/"
-
-    Set-Location $appdirectory
-    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
-
-   $appdirectory="C:\wvd-monitoring-ux\wvd-monitoring-ux"
-#>
+    
 # Get publishing profile for the web app
 $WebAppxml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -87,48 +74,12 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
                 
                 # Adding App Settings to WebApp
                 Write-Output "Adding App settings to Api-App"
-                $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
-                    "AzureAd:ClientSecret" = "$ClientSecret";
+                $WebAppSettings = @{"AzureAd:ClientId" = $ClientId;
+                    "AzureAd:ClientSecret" = $ClientSecret;
                 }
                 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
 
-<#
-
-$webclient = New-Object -TypeName System.Net.WebClient
-$webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse 
-foreach ($file in $files)
-{
-    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
-    $uri = New-Object System.Uri("$Weburl/$relativepath")
-
-    if($file.PSIsContainer)
-    {
-        $uri.AbsolutePath + "is Directory"
-        $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
-        $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
-        $ftprequest.UseBinary = $true
-
-        $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-
-        $response = $ftprequest.GetResponse();
-        $response.StatusDescription
-        continue
-    }
-   
-   Write-Output "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
-
-    $webclient.UploadFile($uri, $file.FullName)
-} 
-$webclient.Dispose()
-
-Write-Output "Adding App settings to WebApp"
-$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
-                    "AzureAd:ClientSecret" = "$ClientSecret";
-}
-Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
-#>
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 $newURL = "$WebUrl/security/signin-callback"
 $app = Get-AzureADApplication | Where-Object {$_.ApplicationId -eq $ClientId}
@@ -182,4 +133,4 @@ Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName
 
     #Providing parameter values to powershell script file
     $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subsriptionid;"automationAccountName"=$automationAccountName}
-    Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params | out-null
+Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params | Out-Null
