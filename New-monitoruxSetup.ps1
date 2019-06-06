@@ -56,13 +56,15 @@ $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
 }
 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 # Creating a Resource URL
-$newURL = "$WebUrl/security/signin-callback"
-# Existing reply URLs list
-$replyURLList = $GetWebApp.ReplyUrls;
-# Adding the resourceurl to the Client Id
-$replyURLList.Add($newURL)
-Set-AzureRmADApplication -ApplicationId $ClientId -ReplyUrl $replyURLList.Add($newURL) 
-
+$newResourceURL = "$WebUrl/security/signin-callback"
+# Get Azure AD App
+$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
+$replyUrls = $app.ReplyUrls
+# Add Reply URL if not already in the list 
+if ($replyUrls -NotContains $newResourceURL) {
+    $replyUrls.Add($newResourceURL)
+    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
+}
 Set-Location $appdirectory
 
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
