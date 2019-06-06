@@ -59,7 +59,7 @@ Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName 
 $newURL = "$WebUrl/security/signin-callback"
 
 # Get Azure AD App
-$app = Get-AzureADApplication -Filter "AppId eq '$($appId)'"
+$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
 $replyUrls = $app.ReplyUrls
 # Add Reply URL if not already in the list 
 if ($replyUrls -NotContains $newURL) {
