@@ -51,28 +51,39 @@ Import-Module AzureAD
     $redirectURL="https://"+"$WebUrl"+"/"
 
 # Get publishing profile for the web app
-$xml = [xml](Get-AzureRmWebAppPublishingProfile -Name $WebApp `
--ResourceGroupName $ResourceGroupName `
--OutputFile null)
+$xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
+
+$xml = [xml]$xml
 
 # Extract connection information from publishing profile
 $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
 $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
-
 # Upload files recursively 
-Set-Location $appdirectory
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse | Where-Object{!($_.PSIsContainer)}
+$files = Get-ChildItem -Path $appdirectory -Recurse -Force
 foreach ($file in $files)
 {
-    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')
+    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
     $uri = New-Object System.Uri("$url/$relativepath")
-    "Uploading to " + $uri.AbsoluteUri
+
+    if($file.PSIsContainer)
+    {
+        $uri.AbsolutePath + "is Directory"
+        $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
+        $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
+        $ftprequest.UseBinary = $true
+        $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
+        $response = $ftprequest.GetResponse();
+        $response.StatusDescription
+        continue
+    }
+    "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
     $webclient.UploadFile($uri, $file.FullName)
-} 
+} Out-Null
 $webclient.Dispose()
+
 
 Write-Output "Adding App settings to WebApp"
 $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
