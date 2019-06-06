@@ -73,13 +73,16 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
                 Invoke-RestMethod -Uri $apiURL -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
                 
                 # Adding App Settings to WebApp
-                Write-Output "Adding App settings to Api-App"
-                $WebAppSettings = @{"AzureAd:ClientId" = $ClientId;
+                Write-Output "Adding App settings to Web-App"
+                <#$WebAppSettings = @{"AzureAd:ClientId" = $ClientId;
                     "AzureAd:ClientSecret" = $ClientSecret;
-                }
+                }#>
+                $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
+                    "AzureAd:ClientSecret" = "$ClientSecret";
+				}
                 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
-
+Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 $newURL = "$WebUrl/security/signin-callback"
 $app = Get-AzureADApplication | Where-Object {$_.ApplicationId -eq $ClientId}
