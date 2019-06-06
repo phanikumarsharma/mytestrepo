@@ -81,6 +81,11 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
 				}
                 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
+
+
+$Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
+$Credential = New-Object System.Management.Automation.PSCredential($UserName,$Psswd)
+Connect-AzureAD -Credential $Credential
 Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 
