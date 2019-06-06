@@ -80,7 +80,7 @@ foreach ($file in $files)
         $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
         $ftprequest.UseBinary = $true
         $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-        #$response = $ftprequest.GetResponse();
+        $response = $ftprequest.GetResponse();
         $response.StatusDescription
         continue
     }
