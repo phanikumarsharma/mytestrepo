@@ -83,15 +83,20 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
 
 Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
-$newURL = "$WebUrl/security/signin-callback"
-$app = Get-AzureADApplication | Where-Object {$_.ApplicationId -eq $ClientId}
+
+$newReplyUrl = "$WebUrl/security/signin-callback"
+# Get Azure AD App
+$app = Get-AzureADApplication -Filter "AppId eq '$($appId)'"
+
 $replyUrls = $app.ReplyUrls
+
 # Add Reply URL if not already in the list 
-if ($replyUrls -NotContains $newURL) {
-    $replyUrls.Add($newURL)
+
+if ($replyUrls -NotContains $newReplyUrl) {
+    $replyUrls.Add($newReplyUrl)
     Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
 }
-
+#>
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
@@ -134,5 +139,5 @@ Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName
     Publish-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName
 
     #Providing parameter values to powershell script file
-    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subsriptionid;"automationAccountName"=$automationAccountName}
+    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subscriptionid;"automationAccountName"=$automationAccountName}
 Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params | Out-Null
