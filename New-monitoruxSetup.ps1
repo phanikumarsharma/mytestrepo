@@ -86,7 +86,7 @@ Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 
 $newReplyUrl = "$WebUrl/security/signin-callback"
 # Get Azure AD App
-$app = Get-AzureADApplication -Filter "AppId eq '$($appId)'"
+$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
 
 $replyUrls = $app.ReplyUrls
 
