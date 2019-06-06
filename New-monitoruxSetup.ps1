@@ -64,7 +64,7 @@ $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$pass
 $files = Get-ChildItem -Path $appdirectory -Recurse -Force
 foreach ($file in $files)
 {
-    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
+    $relativepath =(Resolve-Path -Path $file.FullName -Relative).Replace('\', '/')
     $uri = New-Object System.Uri("$url/$relativepath")
 
     if($file.PSIsContainer)
