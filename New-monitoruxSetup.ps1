@@ -50,46 +50,26 @@ Import-Module AzureAD
     #$requiredAccessName=$ResourceURL.Split("/")[3]
     $redirectURL="https://"+"$WebUrl"+"/"
 
-Set-Location $appdirectory
-
-    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
-
 # Get publishing profile for the web app
-$xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
-
-# Not in Original Script
-$xml = [xml]$xml
+$xml = [xml](Get-AzWebAppPublishingProfile -Name $WebApp `
+-ResourceGroupName $ResourceGroupName `
+-OutputFile null)
 
 # Extract connection information from publishing profile
 $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
 $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
-#$weburl=$url.Replace("/wwwroot","")
+
 # Upload files recursively 
+Set-Location $appdirectory
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse 
+$files = Get-ChildItem -Path $appdirectory -Recurse | Where-Object{!($_.PSIsContainer)}
 foreach ($file in $files)
 {
-    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
+    $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')
     $uri = New-Object System.Uri("$url/$relativepath")
-
-    if($file.PSIsContainer)
-    {
-        $uri.AbsolutePath + "is Directory"
-        $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
-        $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
-        $ftprequest.UseBinary = $true
-
-        $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-
-        $response = $ftprequest.GetResponse();
-        $response.StatusDescription
-        continue
-    }
-
-    "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
-
+    "Uploading to " + $uri.AbsoluteUri
     $webclient.UploadFile($uri, $file.FullName)
 } 
 $webclient.Dispose()
