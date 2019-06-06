@@ -51,7 +51,7 @@ Import-Module AzureAD
     $redirectURL="https://"+"$WebUrl"+"/"
 
 # Get publishing profile for the web app
-$xml = [xml](Get-AzWebAppPublishingProfile -Name $WebApp `
+$xml = [xml](Get-AzureRmWebAppPublishingProfile -Name $WebApp `
 -ResourceGroupName $ResourceGroupName `
 -OutputFile null)
 
