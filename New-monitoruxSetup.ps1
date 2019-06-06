@@ -91,7 +91,21 @@ foreach ($file in $files)
 } 
 $webclient.Dispose()
 
+Write-Output "Adding App settings to WebApp"
+$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
+                    "AzureAd:ClientSecret" = "$ClientSecret";
+}
+Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
+Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
+$newURL = "$WebUrl/security/signin-callback"
+$app = Get-AzureADApplication | Where-Object {$_.ApplicationId -eq $ClientId}
+$replyUrls = $app.ReplyUrls
+# Add Reply URL if not already in the list 
+if ($replyUrls -NotContains $newURL) {
+    $replyUrls.Add($newURL)
+    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
+}
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
