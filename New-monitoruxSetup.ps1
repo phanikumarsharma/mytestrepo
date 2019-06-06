@@ -64,11 +64,9 @@ $xml = [xml]$xml
 $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
 $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
-#$weburl=$url.Replace("/wwwroot","")
 # Upload files recursively 
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-#$files = Get-ChildItem -Path $appdirectory -Recurse 
 $files = Get-ChildItem -Path $appdirectory -Recurse -Force
 foreach ($file in $files)
 {
@@ -82,7 +80,7 @@ foreach ($file in $files)
         $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
         $ftprequest.UseBinary = $true
         $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-        $response = $ftprequest.GetResponse();
+        #$response = $ftprequest.GetResponse();
         $response.StatusDescription
         continue
     }
