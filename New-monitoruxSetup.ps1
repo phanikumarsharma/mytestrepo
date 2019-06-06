@@ -12,8 +12,8 @@ Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Co
 Get-ExecutionPolicy -List
 
 Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
-New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
-Expand-Archive "C:\wvd-monitoring-ux.zip" -DestinationPath "C:\wvd-monitoring-ux" -ErrorAction SilentlyContinue
+#New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
+#Expand-Archive "C:\wvd-monitoring-ux.zip" -DestinationPath "C:\wvd-monitoring-ux" -ErrorAction SilentlyContinue
 
 $modules="https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-mgmt-ux/wvd-templates/wvd-management-ux/deploy/scripts/msft-wvd-saas-offering.zip"
 Invoke-WebRequest -Uri $modules -OutFile "C:\msft-rdmi-saas-offering.zip"
@@ -38,7 +38,7 @@ Import-Module AzureAD
     Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
     #$CodeBitPath= "C:\monitor-ux\monitor-ux"
-    $appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
+    <#$appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
 
     # Get Url of Web-App
     $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
@@ -50,7 +50,7 @@ Import-Module AzureAD
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
 
    $appdirectory="C:\wvd-monitoring-ux\wvd-monitoring-ux"
-
+#>
 # Get publishing profile for the web app
 $WebAppxml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -62,7 +62,39 @@ $username = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"
 $password = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
 $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
 
- 
+             Write-Output "Getting the Publishing profile information from Api-App"
+                $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
+                -ResourceGroupName $ResourceGroupName  `
+                -OutputFile null)
+                $WebAppXML = [xml]$WebAppXML
+
+                # Extract connection information from publishing profile
+
+                Write-Output "Gathering the username, password and publishurl from the Web-App Publishing Profile"
+                $WebAppUserName = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
+                $WebAppPassword = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
+                $WebAppURL = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
+                
+                # Publish Web-App Package files recursively
+                Write-Output "Uploading zip file to web-App"
+                #Get-ChildItem $appdirectory -recurse | Compress-Archive -update -DestinationPath 'c:\WebApp-Monitor-UX.zip' -Verbose 
+                test-path -path 'C:\wvd-monitoring-ux.zip'
+                $filePath = 'C:\wvd-monitoring-ux.zip'
+                $apiURL = "https://$WebAppURL/api/zipdeploy"
+                $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $WebAppUserName, $WebAppPassword)))
+                $userAgent = "powershell/1.0"
+                Invoke-RestMethod -Uri $apiURL -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+                
+                # Adding App Settings to WebApp
+                Write-Output "Adding App settings to Api-App"
+                $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
+                    "AzureAd:ClientSecret" = "$ClientSecret";
+                }
+                Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
+
+
+<#
+
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
 $files = Get-ChildItem -Path $appdirectory -Recurse 
@@ -84,7 +116,7 @@ foreach ($file in $files)
         $response.StatusDescription
         continue
     }
-
+   
    Write-Output "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
 
     $webclient.UploadFile($uri, $file.FullName)
@@ -96,7 +128,7 @@ $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
                     "AzureAd:ClientSecret" = "$ClientSecret";
 }
 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
-
+#>
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 $newURL = "$WebUrl/security/signin-callback"
 $app = Get-AzureADApplication | Where-Object {$_.ApplicationId -eq $ClientId}
@@ -150,4 +182,4 @@ Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName
 
     #Providing parameter values to powershell script file
     $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subsriptionid;"automationAccountName"=$automationAccountName}
-    Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params
+    Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params | out-null
