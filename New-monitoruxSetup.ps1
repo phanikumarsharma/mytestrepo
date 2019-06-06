@@ -42,25 +42,22 @@ Import-Module AzureAD
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
     #$CodeBitPath= "C:\monitor-ux\monitor-ux"
     $appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
-    Test-Path $appdirectory
+       Test-Path $appdirectory
     # Get Url of Web-App
     $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
-    $WebUrl = $GetWebApp.DefaultHostName
-                 
-    #$requiredAccessName=$ResourceURL.Split("/")[3]
+    $WebUrl = $GetWebApp.DefaultHostName          
     $redirectURL="https://"+"$WebUrl"+"/"
- Set-Location $appdirectory
+Set-Location $appdirectory
+
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
-# Not in Original Script
 $xml = [xml]$xml
 
 # Extract connection information from publishing profile
 $username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
 $password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
 $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
-#$weburl=$url.Replace("/wwwroot","")
 # Upload files recursively 
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
@@ -76,20 +73,15 @@ foreach ($file in $files)
         $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
         $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
         $ftprequest.UseBinary = $true
-
         $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-
         $response = $ftprequest.GetResponse();
         $response.StatusDescription
         continue
     }
-
     "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
-
     $webclient.UploadFile($uri, $file.FullName)
 } Out-Null
 $webclient.Dispose()
-
 
 
 Write-Output "Adding App settings to WebApp"
