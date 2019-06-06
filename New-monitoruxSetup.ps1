@@ -61,7 +61,8 @@ $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").
 # Upload files recursively 
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse -Force
+#$files = Get-ChildItem -Path $appdirectory -Recurse -Force
+$files = Get-ChildItem -Recurse | Where { $_.PSisContainer -eq $false }
 foreach ($file in $files)
 {
     $relativepath =(Resolve-Path -Path $file.FullName -Relative).Replace('\', '/')
