@@ -50,6 +50,8 @@ Import-Module AzureAD
     #$requiredAccessName=$ResourceURL.Split("/")[3]
     $redirectURL="https://"+"$WebUrl"+"/"
 
+Set-Location $appdirectory
+
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -83,6 +85,7 @@ foreach ($file in $files)
     $webclient.UploadFile($uri, $file.FullName)
 } Out-Null
 $webclient.Dispose()
+
 
 
 Write-Output "Adding App settings to WebApp"
