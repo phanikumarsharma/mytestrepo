@@ -39,7 +39,7 @@ Import-Module AzureAD
     $Cred = Get-AutomationPSCredential -Name $CredentialAssetName
     Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
-    
+ <#   
 # Get publishing profile for the web app
 $WebAppxml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -50,7 +50,7 @@ $WebAppxml = [xml]$WebAppxml
 $username = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
 $password = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
 $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
-
+#>
              Write-Output "Getting the Publishing profile information from Api-App"
                 $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
                 -ResourceGroupName $ResourceGroupName  `
