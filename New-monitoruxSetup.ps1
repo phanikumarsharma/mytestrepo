@@ -5,6 +5,8 @@ $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
 $WebApp = Get-AutomationVariable -Name 'webApp'
+$ClientId = Get-AutomationVariable -Name 'ClientId'
+$ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
 
 Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
 New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
@@ -47,7 +49,11 @@ Import-Module AzureAD
                  
     #$requiredAccessName=$ResourceURL.Split("/")[3]
     $redirectURL="https://"+"$WebUrl"+"/"
-
+    
+Write-Output "Adding App settings to WebApp"
+$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
+                    "AzureAd:ClientSecret" = "$ClientSecret";
+}
     Set-Location $appdirectory
 
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
