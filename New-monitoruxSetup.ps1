@@ -49,8 +49,41 @@ Import-Module AzureAD
     $redirectURL="https://"+"$WebUrl"+"/"
 
     Set-Location $appdirectory
-    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
+    $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
+-ResourceGroupName $ResourceGroupName  `
+-OutputFile null)
 
+$WebAppXML = [xml]$WebAppXML
+
+# Extract connection information from publishing profile
+
+Write-Output "Gathering the username, password and publishurl from the Web-App Publishing Profile"
+$WebAppUserName = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
+$WebAppPassword = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
+$WebAppURL = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
+ 
+ Write-Output "Uploading the Extracted files to Web-App"
+#Get-ChildItem $WebAppExtractedPath  | Compress-Archive -update  -DestinationPath 'c:\msft-wvd-saas-web.zip' -Verbose 
+test-path -path 'C:\wvd-monitoring-ux\wvd-monitoring-ux'
+$filePath = 'C:\wvd-monitoring-ux\wvd-monitoring-ux'
+$apiUrl = "https://$WebUrl/api/zipdeploy"
+$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $WebAppUserName, $WebApppassword)))
+$userAgent = "powershell/1.0"
+Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+                
+#Checking Extracted files are uploaded or not
+$returnvalue = RunCommand -dir "site\wwwroot\" -command "ls web.config"  -resourceGroupName $resourceGroupName -webAppName $WebApp
+if($returnvalue.output)
+{
+Write-Output "Uploading of Extracted files to Web-App is Successful"
+Write-Output "Published files are uploaded successfully"
+}
+else{
+Write-output "Extracted files are not uploaded Error: $returnvalue.error"
+throw $returnvalue.error
+}
+    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
+<#
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -87,7 +120,7 @@ foreach ($file in $files)
     $webclient.UploadFile($uri, $file.FullName)
 } Out-Null
 $webclient.Dispose()
-
+#>
 
 
 
