@@ -49,31 +49,9 @@ Import-Module AzureAD
     $redirectURL="https://"+"$WebUrl"+"/"
 
     Set-Location $appdirectory
-    $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
--ResourceGroupName $ResourceGroupName  `
--OutputFile null)
-
-$WebAppXML = [xml]$WebAppXML
-
-# Extract connection information from publishing profile
-
-Write-Output "Gathering the username, password and publishurl from the Web-App Publishing Profile"
-$WebAppUserName = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
-$WebAppPassword = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
-$WebAppURL = $WebAppXML.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
- 
- Write-Output "Uploading the Extracted files to Web-App"
-#Get-ChildItem $WebAppExtractedPath  | Compress-Archive -update  -DestinationPath 'c:\msft-wvd-saas-web.zip' -Verbose 
-test-path -path 'C:\wvd-monitoring-ux\wvd-monitoring-ux'
-$filePath = 'C:\wvd-monitoring-ux\wvd-monitoring-ux'
-$apiUrl = "https://$WebUrl/api/zipdeploy"
-$base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $WebAppUserName, $WebApppassword)))
-$userAgent = "powershell/1.0"
-Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
-                
 
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
-<#
+
 # Get publishing profile for the web app
 $xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
@@ -89,7 +67,7 @@ $url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
 #$files = Get-ChildItem -Path $appdirectory -Recurse 
-$files = Get-ChildItem -Path $appdirectory -Recurse -ErrorAction SilentlyContinue -Force
+$files = Get-ChildItem -Path $appdirectory -Recurse -Force
 foreach ($file in $files)
 {
     $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
@@ -108,9 +86,9 @@ foreach ($file in $files)
     }
     "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
     $webclient.UploadFile($uri, $file.FullName)
-} Out-Null
+} 
 $webclient.Dispose()
-#>
+
 
 
 
