@@ -54,7 +54,8 @@ Write-Output "Adding App settings to WebApp"
 $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
                     "AzureAd:ClientSecret" = "$ClientSecret";
 }
-    Set-Location $appdirectory
+  Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
+  Set-Location $appdirectory
 
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
 
