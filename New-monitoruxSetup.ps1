@@ -71,17 +71,7 @@ $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0
 $userAgent = "powershell/1.0"
 Invoke-RestMethod -Uri $apiUrl -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
                 
-#Checking Extracted files are uploaded or not
-$returnvalue = RunCommand -dir "site\wwwroot\" -command "ls web.config"  -resourceGroupName $resourceGroupName -webAppName $WebApp
-if($returnvalue.output)
-{
-Write-Output "Uploading of Extracted files to Web-App is Successful"
-Write-Output "Published files are uploaded successfully"
-}
-else{
-Write-output "Extracted files are not uploaded Error: $returnvalue.error"
-throw $returnvalue.error
-}
+
     #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
 <#
 # Get publishing profile for the web app
