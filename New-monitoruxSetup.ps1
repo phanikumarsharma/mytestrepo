@@ -5,8 +5,11 @@ $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
 $WebApp = Get-AutomationVariable -Name 'webApp'
-$ClientId = Get-AutomationVariable -Name 'ClientId'
-$ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
+
+
+Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
+Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
+Get-ExecutionPolicy -List
 
 Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
 New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
@@ -19,10 +22,6 @@ Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-s
 $AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-wvd-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
 Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
-
-#$AzureModulesPath = Get-ChildItem -Path "C:\wvd-monitoring-ux\wvd-monitoring-ux"| Where-Object {$_.FullName -match 'AzureModules.zip'}
-#Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
-
 Import-Module AzureRM.Resources
 Import-Module AzureRM.Profile
 Import-Module AzureRM.Websites
@@ -30,9 +29,7 @@ Import-Module Azure
 Import-Module AzureRM.Automation
 Import-Module AzureAD
 
-    Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
-    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
-    Get-ExecutionPolicy -List
+    
     #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
     $CredentialAssetName = 'DefaultAzureCredential'
 
@@ -42,32 +39,37 @@ Import-Module AzureAD
     Select-AzureRmSubscription -SubscriptionId $subscriptionid
     #$CodeBitPath= "C:\monitor-ux\monitor-ux"
     $appdirectory = "C:\wvd-monitoring-ux\wvd-monitoring-ux"
-       Test-Path $appdirectory
+
     # Get Url of Web-App
     $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
-    $WebUrl = $GetWebApp.DefaultHostName          
+    $WebUrl = $GetWebApp.DefaultHostName
+               
     $redirectURL="https://"+"$WebUrl"+"/"
-Set-Location $appdirectory
-$PSVersionTable
+
+    Set-Location $appdirectory
+    #$WebAppExtractedPath = Get-ChildItem -Path $WebAppDirectory| Where-Object {$_.FullName -notmatch '\\*.zip($|\\)'} | Resolve-Path -Verbose
+
+   $appdirectory="C:\wvd-monitoring-ux\wvd-monitoring-ux"
+
 # Get publishing profile for the web app
-$xml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
+$WebAppxml = (Get-AzureRmWebAppPublishingProfile -Name $WebApp -ResourceGroupName $ResourceGroupName -OutputFile null)
 
 # Not in Original Script
-$xml = [xml]$xml
+$WebAppxml = [xml]$WebAppxml
 
 # Extract connection information from publishing profile
-$username = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userName").value
-$password = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@userPWD").value
-$url = $xml.SelectNodes("//publishProfile[@publishMethod=`"FTP`"]/@publishUrl").value
-#$weburl=$url.Replace("/wwwroot","")
-# Upload files recursively 
+$username = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userName").value
+$password = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@userPWD").value
+$Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/@publishUrl").value
+
+ 
 $webclient = New-Object -TypeName System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-$files = Get-ChildItem -Path $appdirectory -Recurse -Force -ErrorAction SilentlyContinue
+$files = Get-ChildItem -Path $appdirectory -Recurse 
 foreach ($file in $files)
 {
     $relativepath = (Resolve-Path -Path $file.FullName -Relative).Replace(".\", "").Replace('\', '/')  
-    $uri = New-Object System.Uri("$url/$relativepath")
+    $uri = New-Object System.Uri("$Weburl/$relativepath")
 
     if($file.PSIsContainer)
     {
@@ -75,36 +77,21 @@ foreach ($file in $files)
         $ftprequest = [System.Net.FtpWebRequest]::Create($uri);
         $ftprequest.Method = [System.Net.WebRequestMethods+Ftp]::MakeDirectory
         $ftprequest.UseBinary = $true
+
         $ftprequest.Credentials = New-Object System.Net.NetworkCredential($username,$password)
-        #$response = $ftprequest.GetResponse();
+
+        $response = $ftprequest.GetResponse();
         $response.StatusDescription
         continue
     }
 
-    "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
+   Write-Output "Uploading to " + $uri.AbsoluteUri + " from "+ $file.FullName
 
     $webclient.UploadFile($uri, $file.FullName)
-
-    "Successfully Uploaded "+$file.FullName
 } 
 $webclient.Dispose()
 
 
-Write-Output "Adding App settings to WebApp"
-$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
-                    "AzureAd:ClientSecret" = "$ClientSecret";
-}
-Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
-
-Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
-$newURL = "$WebUrl/security/signin-callback"
-$app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
-$replyUrls = $app.ReplyUrls
-# Add Reply URL if not already in the list 
-if ($replyUrls -NotContains $newURL) {
-    $replyUrls.Add($newURL)
-    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
-}
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
@@ -148,5 +135,5 @@ Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName
     Publish-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName
 
     #Providing parameter values to powershell script file
-    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subscriptionid;"automationAccountName"=$automationAccountName}
+    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subsriptionid;"automationAccountName"=$automationAccountName}
     Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params
