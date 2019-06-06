@@ -143,5 +143,5 @@ Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName
     Publish-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName
 
     #Providing parameter values to powershell script file
-    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subsriptionid;"automationAccountName"=$automationAccountName}
+    $params=@{"UserName"=$UserName;"Password"=$Password;"ResourcegroupName"=$ResourcegroupName;"SubscriptionId"=$subscriptionid;"automationAccountName"=$automationAccountName}
     Start-AzureRmAutomationRunbook -Name $runbookName -ResourceGroupName $ResourcegroupName -AutomationAccountName $automationAccountName -Parameters $params
