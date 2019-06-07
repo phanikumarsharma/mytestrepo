@@ -88,7 +88,7 @@ $Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential($UserName,$Psswd)
 Connect-AzureAD -Credential $Credential
 Install-Module -Name AzureAD
-Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
+Connect-AzureAD -Credential $Credential
 
 $newReplyUrl = "$WebUrl/security/signin-callback"
 # Get Azure AD App
@@ -102,7 +102,7 @@ if ($replyUrls -NotContains $newReplyUrl) {
     $replyUrls.Add($newReplyUrl)
     Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
 }
-#>
+
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
