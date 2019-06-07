@@ -82,15 +82,18 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
 		}
                 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
+ # Get Url of Web-App
+    $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
+    $WebURL = $GetWebApp.DefaultHostName
+               
+    $redirectURL="https://"+"$WebURL"
 
-
-$Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential($UserName,$Psswd)
-Connect-AzureAD -Credential $Credential
+Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
+$Credential = New-Object System.Management.Automation.PSCredential($Username,$Psswd)
 Install-Module -Name AzureAD
-Connect-AzureAD -Credential $Credential
+Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Credential
 
-$newReplyUrl = "$WebUrl/security/signin-callback"
+$newReplyUrl = "$redirectURL/security/signin-callback"
 # Get Azure AD App
 $app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
 
