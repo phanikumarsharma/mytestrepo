@@ -103,8 +103,8 @@ $replyUrls = $app.ReplyUrls
 
 if ($replyUrls -NotContains $newReplyUrl) {
     $replyUrls.Add($newReplyUrl)
-    #Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls
-    Set-AzureADApplication -DisplayName $app.DisplayName -ReplyUrls $newReplyUrl -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
+    Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
+    #Set-AzureADApplication -DisplayName $app.DisplayName -ReplyUrls $newReplyUrl -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
 }
 
 
