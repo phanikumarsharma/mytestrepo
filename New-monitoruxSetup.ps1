@@ -7,7 +7,7 @@ $automationAccountName = Get-AutomationVariable -Name 'accountName'
 $WebApp = Get-AutomationVariable -Name 'webApp'
 $ClientId = Get-AutomationVariable -Name 'ClientId'
 $ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
-
+$WorkspaceID = Get-AutomationVariable -Name 'WorkspaceID'
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
@@ -76,9 +76,10 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
                 
                 # Adding App Settings to WebApp
                 Write-Output "Adding App settings to Web-App"
-                $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId";
-                    "AzureAd:ClientSecret" = "$ClientSecret";
-				}
+                $WebAppSettings = @{"AzureAd:ClientId" = "$ClientId"
+                    "AzureAd:ClientSecret" = "$ClientSecret"
+		    "AzureAd:WorkspaceID" = "$WorkspaceID"
+		}
                 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
 
