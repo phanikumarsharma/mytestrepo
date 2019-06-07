@@ -88,7 +88,7 @@ $Weburl = $WebAppxml.SelectNodes("//publishProfile[@publishMethod=`"MSDeploy`"]/
                
     $redirectURL="https://"+"$WebURL"
 
-Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
+$Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential($Username,$Psswd)
 Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Credential
