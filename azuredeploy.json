@@ -47,7 +47,7 @@
         "hostingPlanName": "[concat(parameters('WebAppName'),'-SPlan')]",
         "serviceplansku": "S1",
         "workerSize": "0",
-        "baseURL": "https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-monitoring/wvd-sh/wvd-monitoring-ux/deploy",
+        "baseURL": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master",
         "scriptUri": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/New-monitoruxSetup.ps1",
         "fileURI": "[concat(variables('baseURL'),'/wvd-monitoring-ux.zip')]",
         "sku": "Free",
