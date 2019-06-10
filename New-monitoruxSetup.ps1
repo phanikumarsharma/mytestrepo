@@ -14,10 +14,15 @@ Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$f
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 Get-ExecutionPolicy -List
 
-Invoke-WebRequest -Uri $fileURI -OutFile "C:\msft-rdmi-saas-offering.zip"
+Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
+New-Item -Path "C:\wvd-monitoring-ux" -ItemType directory -Force -ErrorAction SilentlyContinue
+Expand-Archive "C:\wvd-monitoring-ux.zip" -DestinationPath "C:\wvd-monitoring-ux" -ErrorAction SilentlyContinue
+
+$modules="https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-mgmt-ux/wvd-templates/wvd-management-ux/deploy/scripts/msft-wvd-saas-offering.zip"
+Invoke-WebRequest -Uri $modules -OutFile "C:\msft-rdmi-saas-offering.zip"
 New-Item -Path "C:\msft-rdmi-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-saas-offering" -ErrorAction SilentlyContinue
-$AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-rdmi-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
+$AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-wvd-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
 Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
 Import-Module AzureRM.Resources
