@@ -19,6 +19,7 @@ Invoke-WebRequest -Uri $modules -OutFile "C:\AzureModules.zip"
 New-Item -Path "C:\AzureModules" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\AzureModules.zip" -DestinationPath "C:\Modules\Global" -ErrorAction SilentlyContinue
 
+#Importing Azure Modules
 Import-Module AzureRM.Resources
 Import-Module AzureRM.Profile
 Import-Module AzureRM.Websites
@@ -31,6 +32,8 @@ $CredentialAssetName = 'DefaultAzureCredential'
 
 #Get the credential with the above name from the Automation Asset store
 $Cred = Get-AutomationPSCredential -Name $CredentialAssetName
+
+#Authenticate to Azure and select the subscriptionId
 Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
 Select-AzureRmSubscription -SubscriptionId $subscriptionid
 
@@ -112,7 +115,7 @@ Import-Module AzureRM.Automation
 Remove-AzureRmAutomationAccount -Name `$automationAccountName -ResourceGroupName `$ResourceGroupName -Force 
 "@| Out-File -FilePath RemoveAccount:\RemoveAccount.ps1 -Force
 
-    $runbookName='removewvdsaasacctbook'
+    $runbookName='removemonitoruxacctbook'
     #Create a Run Book
     New-AzureRmAutomationRunbook -Name $runbookName -Type PowerShell -ResourceGroupName $ResourceGroupName -AutomationAccountName $automationAccountName
 
