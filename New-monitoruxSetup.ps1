@@ -24,7 +24,8 @@ Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-s
 $AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-wvd-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
 Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 #>
-$modules="https://raw.githubusercontent.com/Azure/RDS-Templates/wvd-monitoring/wvd-sh/wvd-monitoring-ux/deploy/AzureModules.zip"
+
+$modules=$fileuri.Replace('wvd-monitoring-ux.zip','AzureModules.zip')
 Invoke-WebRequest -Uri $modules -OutFile "C:\AzureModules.zip"
 New-Item -Path "C:\AzureModules" -ItemType directory -Force -ErrorAction SilentlyContinue
 Expand-Archive "C:\AzureModules.zip" -DestinationPath "C:\Modules\Global" -ErrorAction SilentlyContinue
