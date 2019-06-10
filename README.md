@@ -1,4 +1,4 @@
-# Create MSFT-WVD-SAAS-UX Environment
+# Create WVD-MONITORING-UX Environment
 
 Deploy the web app to your azure environment.
 
