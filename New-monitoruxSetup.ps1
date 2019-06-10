@@ -14,11 +14,11 @@ Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$f
 Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force -Confirm:$false
 Get-ExecutionPolicy -List
 
-Invoke-WebRequest -Uri $fileURI -OutFile "C:\wvd-monitoring-ux.zip"
-$modules=$fileuri.Replace('wvd-monitoring-ux.zip','AzureModules.zip')
-Invoke-WebRequest -Uri $modules -OutFile "C:\AzureModules.zip"
-New-Item -Path "C:\AzureModules" -ItemType directory -Force -ErrorAction SilentlyContinue
-Expand-Archive "C:\AzureModules.zip" -DestinationPath "C:\Modules\Global" -ErrorAction SilentlyContinue
+Invoke-WebRequest -Uri $fileURI -OutFile "C:\msft-rdmi-saas-offering.zip"
+New-Item -Path "C:\msft-rdmi-saas-offering" -ItemType directory -Force -ErrorAction SilentlyContinue
+Expand-Archive "C:\msft-rdmi-saas-offering.zip" -DestinationPath "C:\msft-rdmi-saas-offering" -ErrorAction SilentlyContinue
+$AzureModulesPath = Get-ChildItem -Path "C:\msft-rdmi-saas-offering\msft-rdmi-saas-offering"| Where-Object {$_.FullName -match 'AzureModules.zip'}
+Expand-Archive $AzureModulesPath.fullname -DestinationPath 'C:\Modules\Global' -ErrorAction SilentlyContinue
 
 Import-Module AzureRM.Resources
 Import-Module AzureRM.Profile
