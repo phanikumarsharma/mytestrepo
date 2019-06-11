@@ -93,6 +93,7 @@ $app = Get-AzureADApplication -Filter "AppId eq '$($ClientId)'"
 
 $replyUrls = $app.ReplyUrls
 
+
 # Add Reply URL if not already in the list 
 
 if ($replyUrls -NotContains $newReplyUrl) {
