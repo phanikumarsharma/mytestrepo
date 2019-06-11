@@ -37,7 +37,12 @@ if ([String]::IsNullOrEmpty($isAzureModulePresent) -eq $true)
 
 Import-Module -Name AzureRM.Profile
 Write-Output "Provide your credentials to access Azure subscription $subscriptionId" -Verbose
-Login-AzureRmAccount -SubscriptionId $subscriptionId
+$securedPassword = ConvertTo-SecureString $Password -AsPlainText -Force
+#Create a Credentials Object
+$credentials = New-Object System.Management.Automation.PSCredential ($Username, $securedPassword)
+# Authenticate to Azure
+
+Login-AzureRmAccount -SubscriptionId $subscriptionId -Credential $credentials
 $azureSubscription = Get-AzureRmSubscription -SubscriptionId $subscriptionId
 $connectionName = $azureSubscription.SubscriptionName
 
