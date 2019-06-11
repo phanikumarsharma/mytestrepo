@@ -23,8 +23,8 @@
 #Initialize
 $ErrorActionPreference = "Stop"
 $VerbosePreference = "SilentlyContinue"
-$homePage = "$newReplyUrl"
-$identifierUri = $redirectURL
+$homePage = "$redirectURL"
+$identifierUri = $homePage
 $spnRole = "contributor"
 
 #Initialize subscription
