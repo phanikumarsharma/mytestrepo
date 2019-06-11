@@ -17,7 +17,7 @@
 
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
-    [string] $newReplyUrl
+    [string] $redirectURL
 )
 
 #Initialize
