@@ -73,7 +73,7 @@ Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Credential
 
 $modules="https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/testappreg1106.ps1"
-Invoke-WebRequest -Uri $modules -OutFile "C:\"
+Invoke-WebRequest -Uri $modules -OutFile "C:\testappreg1106.ps1"
 Set-Location "C:\"
 .\testappreg1106.ps1 -subscriptionid $subscriptionid -Username $Username -Password $Password -WebApp $WebApp -redirectURL $redirectURL
 $appreg=Get-AzureADApplication | where {$_.DisplayName -eq "$WebApp"}
