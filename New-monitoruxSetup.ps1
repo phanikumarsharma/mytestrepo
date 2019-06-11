@@ -2,7 +2,6 @@
 $subscriptionid = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
-$appregURI= Get-AutomationVariable -Name 'appregURI'
 $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
