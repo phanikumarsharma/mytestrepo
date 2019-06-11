@@ -6,8 +6,6 @@ $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
 $WebApp = Get-AutomationVariable -Name 'webApp'
-#$ClientId = Get-AutomationVariable -Name 'ClientId'
-#$ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
 $WorkspaceID = Get-AutomationVariable -Name 'WorkspaceID'
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
@@ -66,8 +64,7 @@ Invoke-RestMethod -Uri $apiURL -Headers @{Authorization=("Basic {0}" -f $base64A
 
 # Adding App Settings to WebApp
 Write-Output "Adding App settings to Web-App"
-$WebAppSettings = @{"AzureAd:ClientId" = "$ClientId"
-    "AzureAd:ClientSecret" = "$ClientSecret"
+$WebAppSettings = @{
     "AzureAd:WorkspaceID" = "$WorkspaceID"
 }
 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
