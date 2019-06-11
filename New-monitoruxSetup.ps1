@@ -82,7 +82,7 @@ $ClientId=$appreg.AppId
 # Adding App Settings to WebApp
 Write-Output "Adding App settings to Web-App"
 $WebAppSettings = @{
-    "AzureAd:WorkspaceID"=""
+    "AzureAd:ClientID"="$ClientID"
     "AzureAd:WorkspaceID" = "$WorkspaceID"
 }
 Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
