@@ -2,18 +2,6 @@
     "$schema": "http://schemas.microsoft.org/azure/deploymentTemplate?api-version=2015-01-01-preview#",
     "contentVersion": "1.0",
     "parameters": {
-        "Client-Id": {
-            "type": "string",
-            "metadata": {
-                "description": "Client Id/ Application Id"
-            }
-        },
-        "Client-Secret": {
-            "type": "string",
-            "metadata": {
-                "description": "App Secret key"
-            }
-        },
         "AzureLoginUserName": {
             "type": "string",
             "metadata": {
@@ -49,6 +37,7 @@
         "workerSize": "0",
         "baseURL": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master",
         "scriptUri": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/New-monitoruxSetup.ps1",
+        "appregscripturi":""
         "fileURI": "[concat(variables('baseURL'),'/wvd-monitoring-ux.zip')]",
         "sku": "Free",
         "automationVariables": [
@@ -83,14 +72,6 @@
             {
                 "name": "fileURI",
                 "value": "[concat('\"',variables('fileURI'),'\"')]"
-            },
-            {
-                "name": "ClientId",
-                "value": "[concat('\"',parameters('Client-Id'),'\"')]"
-            },
-            {
-                "name": "ClientSecret",
-                "value": "[concat('\"',parameters('Client-Secret'),'\"')]"
             },
             {
                 "name": "WorkspaceID",
