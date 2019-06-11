@@ -24,7 +24,7 @@
 $ErrorActionPreference = "Stop"
 $VerbosePreference = "SilentlyContinue"
 $homePage = "$redirectURL"
-$identifierUri = $homePage
+$identifierUri = $homePage/security/signin-callback
 $spnRole = "contributor"
 
 #Initialize subscription
