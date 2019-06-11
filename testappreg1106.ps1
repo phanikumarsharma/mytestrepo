@@ -23,7 +23,7 @@
 #Initialize
 $ErrorActionPreference = "Stop"
 $VerbosePreference = "SilentlyContinue"
-$homePage = "$redirectURL/$WebApp"
+$homePage = "$redirectURL"
 $identifierUri = $homePage
 $spnRole = "contributor"
 
@@ -69,7 +69,7 @@ $appPassword=$PasswordCredential.Value
 #Create a new AD Application
 Write-Output "Creating a new Application in AAD (App URI - $identifierUri)" -Verbose
 $secureAppPassword = $appPassword | ConvertTo-SecureString -AsPlainText -Force
-$azureAdApplication = New-AzureRmADApplication -DisplayName $appDisplayName -HomePage $homePage -IdentifierUris $identifierUri -Password $secureAppPassword -Verbose
+$azureAdApplication = New-AzureRmADApplication -DisplayName $WebApp -HomePage $homePage -IdentifierUris $identifierUri -Password $secureAppPassword -Verbose
 $appId = $azureAdApplication.ApplicationId
 Write-Output "Azure AAD Application creation completed successfully (Application Id: $appId)" -Verbose
 
