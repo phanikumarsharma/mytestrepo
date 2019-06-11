@@ -76,7 +76,7 @@ $modules="https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/t
 Invoke-WebRequest -Uri $modules -OutFile "C:\testappreg1106.ps1"
 Set-Location "C:\"
 .\testappreg1106.ps1 -subscriptionid $subscriptionid -Username $Username -Password $Password -WebApp $WebApp -redirectURL $redirectURL
-$appreg=Get-AzureADApplication | where {$_.DisplayName -eq "$WebApp"}
+$appreg=Get-AzureADApplication -SearchString $WebApp
 $ClientId=$appreg.AppId
 
 # Adding App Settings to WebApp
