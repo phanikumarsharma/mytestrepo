@@ -2,6 +2,7 @@
 $subscriptionid = Get-AutomationVariable -Name 'subscriptionid'
 $ResourceGroupName = Get-AutomationVariable -Name 'ResourceGroupName'
 $fileURI = Get-AutomationVariable -Name 'fileURI'
+$appregURI= Get-AutomationVariable -Name 'appregURI'
 $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
@@ -31,13 +32,13 @@ Import-Module AzureRM.Automation
 Import-Module AzureAD
 
     
-    #The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
-    $CredentialAssetName = 'DefaultAzureCredential'
+#The name of the Automation Credential Asset this runbook will use to authenticate to Azure.
+$CredentialAssetName = 'DefaultAzureCredential'
 
-    #Get the credential with the above name from the Automation Asset store
-    $Cred = Get-AutomationPSCredential -Name $CredentialAssetName
-    Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
-    Select-AzureRmSubscription -SubscriptionId $subscriptionid
+#Get the credential with the above name from the Automation Asset store
+$Cred = Get-AutomationPSCredential -Name $CredentialAssetName
+Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
+Select-AzureRmSubscription -SubscriptionId $subscriptionid
 
 Write-Output "Getting the Publishing profile information from Api-App"
 $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
@@ -61,15 +62,8 @@ $apiURL = "https://$WebAppURL/api/zipdeploy"
 $base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $WebAppUserName, $WebAppPassword)))
 $userAgent = "powershell/1.0"
 Invoke-RestMethod -Uri $apiURL -Headers @{Authorization=("Basic {0}" -f $base64AuthInfo)} -UserAgent $userAgent -Method POST -InFile $filePath -ContentType "multipart/form-data"
+# Get Url of Web-App
 
-# Adding App Settings to WebApp
-Write-Output "Adding App settings to Web-App"
-$WebAppSettings = @{
-    "AzureAd:WorkspaceID" = "$WorkspaceID"
-}
-Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
-
- # Get Url of Web-App
 $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
 $WebURL = $GetWebApp.DefaultHostName         
 $redirectURL="https://"+"$WebURL"
@@ -78,6 +72,21 @@ $Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
 $Credential = New-Object System.Management.Automation.PSCredential($Username,$Psswd)
 Install-Module -Name AzureAD
 Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Credential
+
+$modules="https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/testappreg1106.ps1"
+Invoke-WebRequest -Uri $modules -OutFile "C:\"
+Set-Location "C:\"
+.\testappreg1106.ps1 -subscriptionid $subscriptionid -Username $Username -Password $Password -WebApp $WebApp -redirectURL $redirectURL
+$appreg=Get-AzureADApplication | where {$_.DisplayName -eq "$WebApp"}
+$ClientId=$appreg.AppId
+
+# Adding App Settings to WebApp
+Write-Output "Adding App settings to Web-App"
+$WebAppSettings = @{
+    "AzureAd:WorkspaceID"=""
+    "AzureAd:WorkspaceID" = "$WorkspaceID"
+}
+Set-AzureRmWebApp -AppSettings $WebAppSettings -Name $WebApp -ResourceGroupName $ResourceGroupName
 
 $newReplyUrl = "$redirectURL/security/signin-callback"
 # Get Azure AD App
