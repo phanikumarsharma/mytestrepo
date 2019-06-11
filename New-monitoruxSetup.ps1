@@ -6,8 +6,8 @@ $Username = Get-AutomationVariable -Name 'Username'
 $Password = Get-AutomationVariable -Name 'Password'
 $automationAccountName = Get-AutomationVariable -Name 'accountName'
 $WebApp = Get-AutomationVariable -Name 'webApp'
-$ClientId = Get-AutomationVariable -Name 'ClientId'
-$ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
+#$ClientId = Get-AutomationVariable -Name 'ClientId'
+#$ClientSecret = Get-AutomationVariable -Name 'ClientSecret'
 $WorkspaceID = Get-AutomationVariable -Name 'WorkspaceID'
 
 Set-ExecutionPolicy -ExecutionPolicy Undefined -Scope Process -Force -Confirm:$false
