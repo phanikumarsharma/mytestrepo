@@ -17,14 +17,14 @@
 
     [Parameter(Mandatory = $false)]
     [ValidateNotNullOrEmpty()]
-    [string] $redirectURL
+    [string] $newReplyUrl
 )
 
 #Initialize
 $ErrorActionPreference = "Stop"
 $VerbosePreference = "SilentlyContinue"
-$homePage = "$redirectURL"
-$identifierUri = $homePage/security/signin-callback
+$homePage = "$newReplyUrl"
+$identifierUri = $homePage
 $spnRole = "contributor"
 
 #Initialize subscription
