@@ -38,7 +38,6 @@
         "baseURL": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master",
         "scriptUri": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/New-monitoruxSetup.ps1",
         "fileURI": "[concat(variables('baseURL'),'/wvd-monitoring-ux.zip')]",
-        "appregURI": "[concat(variables('baseURL'),'/testappreg1106.ps1')]",
         "sku": "Free",
         "automationVariables": [
             {
