@@ -57,7 +57,7 @@ if ($existingApplication -ne $null) {
 
 $startDate = Get-Date
 $endDate = $startDate.AddYears($script:yearsOfExpiration)
-#$aadAppKeyPwd = New-AzureADApplicationPasswordCredential -ObjectId $myApp.ObjectId -CustomKeyIdentifier "Primary" -StartDate $startDate -EndDate $endDate
+#$aadAppKeyPwd = New-AzureADApplicationPasswordCredential -ObjectId $existingApplication.ObjectId -CustomKeyIdentifier "Primary" -StartDate $startDate -EndDate $endDate
 $Guid = New-Guid
 $PasswordCredential = New-Object -TypeName Microsoft.Open.AzureAD.Model.PasswordCredential
 $PasswordCredential.StartDate = $startDate
@@ -69,7 +69,8 @@ $appPassword=$PasswordCredential.Value
 #Create a new AD Application
 Write-Output "Creating a new Application in AAD (App URI - $identifierUri)" -Verbose
 $secureAppPassword = $appPassword | ConvertTo-SecureString -AsPlainText -Force
-$azureAdApplication = New-AzureRmADApplication -DisplayName $WebApp -HomePage $homePage -IdentifierUris $identifierUri -Password $secureAppPassword -Verbose
+#$azureAdApplication = New-AzureRmADApplication -DisplayName $WebApp -HomePage $homePage -IdentifierUris $identifierUri -Password $secureAppPassword -Verbose
+$azureAdApplication=New-AzureADApplication -DisplayName $WebApp -ReplyUrls $redirectURL -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
 $appId = $azureAdApplication.ApplicationId
 Write-Output "Azure AAD Application creation completed successfully (Application Id: $appId)" -Verbose
 
