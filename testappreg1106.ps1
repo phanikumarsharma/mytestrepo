@@ -31,7 +31,7 @@ $spnRole = "contributor"
 $isAzureModulePresent = Get-Module -Name AzureRM* -ListAvailable
 if ([String]::IsNullOrEmpty($isAzureModulePresent) -eq $true)
 {
-    Write-Output "Script requires AzureRM modules. Obtain from https://github.com/Azure/azure-powershell/releases." -Verbose
+    Write-Output "Script requires AzureRM modules" -Verbose
     return
 }
 
