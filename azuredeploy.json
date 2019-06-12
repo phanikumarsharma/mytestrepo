@@ -9,7 +9,7 @@
             }
         },
         "AzureLoginPassword": {
-            "type": "string",
+            "type": "securestring",
             "metadata": {
                 "description": "Azure Login Password"
             }
