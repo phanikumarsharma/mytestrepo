@@ -26,17 +26,7 @@ $VerbosePreference = "SilentlyContinue"
 $homePage = "$redirectURL"
 $identifierUri = $homePage
 $spnRole = "contributor"
-<#
-#Initialize subscription
-$isAzureModulePresent = Get-Module -Name AzureRM* -ListAvailable
-if ([String]::IsNullOrEmpty($isAzureModulePresent) -eq $true)
-{
-    Write-Output "Script requires AzureRM modules" -Verbose
-    return
-}
-#>
-Import-Module -Name AzureRM.Profile
-Write-Output "Provide your credentials to access Azure subscription $subscriptionId" -Verbose
+
 $securedPassword = ConvertTo-SecureString $Password -AsPlainText -Force
 #Create a Credentials Object
 $credentials = New-Object System.Management.Automation.PSCredential ($Username, $securedPassword)
