@@ -2,16 +2,16 @@
     "$schema": "http://schemas.microsoft.org/azure/deploymentTemplate?api-version=2015-01-01-preview#",
     "contentVersion": "1.0",
     "parameters": {
-        "AzureLoginUserName": {
+        "Client-Id": {
             "type": "string",
             "metadata": {
-                "description": "User must have RDS Owner on the WVD tenant and must have Contributor on the Azure subscription"
+                "description": "Client Id/ Application Id"
             }
         },
-        "AzureLoginPassword": {
-            "type": "securestring",
+        "Client-Secret": {
+            "type": "string",
             "metadata": {
-                "description": "The password that corresponds to the AzureAD UserPrincipalName."
+                "description": "App Secret key"
             }
         },
         "WebAppName": {
@@ -41,12 +41,12 @@
         "sku": "Free",
         "automationVariables": [
             {
-                "name": "Username",
-                "value": "[concat('\"',parameters('AzureLoginUserName'),'\"')]"
+                "name": "ClientId",
+                "value": "[concat('\"',parameters('Client-Id'),'\"')]"
             },
             {
-                "name": "password",
-                "value": "[concat('\"',parameters('AzureLoginPassword'),'\"')]"
+                "name": "ClientSecret",
+                "value": "[concat('\"',parameters('Client-Secret'),'\"')]"
             },
             {
                 "name": "subscriptionid",
@@ -165,8 +165,8 @@
                     "location": "[resourceGroup().location]",
                     "tags": {},
                     "properties": {
-                        "userName": "[parameters('AzureLoginUserName')]",
-                        "password": "[parameters('AzureLoginPassword')]"
+                        "userName": "[parameters('ClientId')]",
+                        "password": "[parameters('ClientSecret')]"
                     },
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', variables('accountName'))]",
