@@ -5,13 +5,13 @@
         "AzureLoginId": {
             "type": "string",
             "metadata": {
-                "description": "Client Id/ Application Id"
+                "description": "Azure Login Username"
             }
         },
         "AzureLoginPassword": {
             "type": "string",
             "metadata": {
-                "description": "App Secret key"
+                "description": "Azure Login Password"
             }
         },
         "WebAppName": {
