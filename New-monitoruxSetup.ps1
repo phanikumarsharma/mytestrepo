@@ -39,7 +39,7 @@ $Cred = Get-AutomationPSCredential -Name $CredentialAssetName
 Add-AzureRmAccount -Environment 'AzureCloud' -Credential $Cred
 Select-AzureRmSubscription -SubscriptionId $subscriptionid
 
-Write-Output "Getting the Publishing profile information from Api-App"
+Write-Output "Getting the Publishing profile information from Web-App"
 $WebAppXML = (Get-AzureRmWebAppPublishingProfile -Name $WebApp `
 -ResourceGroupName $ResourceGroupName  `
 -OutputFile null)
