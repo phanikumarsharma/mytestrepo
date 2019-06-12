@@ -2,13 +2,13 @@
     "$schema": "http://schemas.microsoft.org/azure/deploymentTemplate?api-version=2015-01-01-preview#",
     "contentVersion": "1.0",
     "parameters": {
-        "Client-Id": {
+        "AzureLoginId": {
             "type": "string",
             "metadata": {
                 "description": "Client Id/ Application Id"
             }
         },
-        "Client-Secret": {
+        "AzureLoginPassword": {
             "type": "string",
             "metadata": {
                 "description": "App Secret key"
@@ -41,12 +41,12 @@
         "sku": "Free",
         "automationVariables": [
             {
-                "name": "ClientId",
-                "value": "[concat('\"',parameters('Client-Id'),'\"')]"
+                "name": "Username",
+                "value": "[concat('\"',parameters('AzureLoginId'),'\"')]"
             },
             {
-                "name": "ClientSecret",
-                "value": "[concat('\"',parameters('Client-Secret'),'\"')]"
+                "name": "Password",
+                "value": "[concat('\"',parameters('AzureLoginPassword'),'\"')]"
             },
             {
                 "name": "subscriptionid",
@@ -165,8 +165,8 @@
                     "location": "[resourceGroup().location]",
                     "tags": {},
                     "properties": {
-                        "userName": "[parameters('ClientId')]",
-                        "password": "[parameters('ClientSecret')]"
+                        "userName": "[parameters('AzureLoginId')]",
+                        "password": "[parameters('AzureLoginPassword')]"
                     },
                     "dependsOn": [
                         "[concat('Microsoft.Automation/automationAccounts/', variables('accountName'))]",
