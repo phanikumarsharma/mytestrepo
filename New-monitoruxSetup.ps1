@@ -109,16 +109,16 @@ foreach($permission in $AzureLogAnalyticsApiPrincipal.Oauth2Permissions){
 }
 Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $AzureLogAnalyticsApiAccess -ErrorAction Stop
 
-	#set windows virtual desktop permission to Client App Registration
-		$resourceAppId = Get-AzureADServicePrincipal -SearchString $wvdInfraWebAppName | Where-Object {$_.DisplayName -eq "Windows Virtual Desktop"}
+#set windows virtual desktop permission to Client App Registration
+$resourceAppId = Get-AzureADServicePrincipal -SearchString "Windows Virtual Desktop" | Where-Object {$_.DisplayName -eq "Windows Virtual Desktop"}
 $clientappreq = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
 $clientappreq.ResourceAppId = $resourceAppId.AppId
 foreach($permission in $resourceAppId.Oauth2Permissions){
     $clientappreq.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 }
+
 #Setting up the WVD Required Access to Client Application
 Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $clientappreq -ErrorAction Stop
-
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
