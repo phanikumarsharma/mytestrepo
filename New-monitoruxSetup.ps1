@@ -101,22 +101,19 @@ if ($replyUrls -NotContains $newReplyUrl) {
 }
 #set windows virtual desktop permission to Client App Registration
 $resourceAppId = Get-AzureADServicePrincipal -SearchString "Windows Virtual Desktop" | Where-Object {$_.DisplayName -eq "Windows Virtual Desktop"}
-$clientappreq = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
-$clientappreq.ResourceAppId = $resourceAppId.AppId
+$AzureWVDApiAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+$AzureWVDApiAccess.ResourceAppId = $resourceAppId.AppId
 foreach($permission in $resourceAppId.Oauth2Permissions){
-    $clientappreq.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
+    $AzureWVDApiAccess.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 }
-#Setting up the WVD Required Access to Client Application
-Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $clientappreq -ErrorAction Stop
 
-#set Log analytics api permission to Client App Registration
 $AzureLogAnalyticsApiPrincipal = Get-AzureADServicePrincipal -SearchString "Log Analytics API"
 $AzureLogAnalyticsApiAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
 $AzureLogAnalyticsApiAccess.ResourceAppId = $AzureLogAnalyticsApiPrincipal.AppId
 foreach($permission in $AzureLogAnalyticsApiPrincipal.Oauth2Permissions){
     $AzureLogAnalyticsApiAccess.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 }
-Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $AzureLogAnalyticsApiAccess -ErrorAction Stop
+Set-AzureADApplication -ObjectId "1ccc6a40-d849-4784-8f0f-ac6b4ca77704" -RequiredResourceAccess $AzureLogAnalyticsApiAccess,$AzureWVDApiAccess -ErrorAction Stop
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
