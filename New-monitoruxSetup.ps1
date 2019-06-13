@@ -101,6 +101,13 @@ if ($replyUrls -NotContains $newReplyUrl) {
     Set-AzureADApplication -ObjectId $app.ObjectId -ReplyUrls $replyUrls -Verbose -ErrorAction Stop
 }
 
+#set Log analytics api permission to Client App Registration
+$AzureLogAnalyticsApiPrincipal = Get-AzureADServicePrincipal -SearchString "Log Analytics API"
+$AzureLogAnalyticsApiAccess = New-Object -TypeName "Microsoft.Open.AzureAD.Model.RequiredResourceAccess"
+$AzureLogAnalyticsApiAccess.ResourceAppId = $AzureLogAnalyticsApiPrincipal.AppId
+$AzurelogApiMgmt = New-Object -TypeName "microsoft.open.azuread.model.resourceAccess" -ArgumentList $AzureLogAnalyticsApiPrincipal.AppId, "Scope"
+$AzureLogAnalyticsApiAccess.ResourceAccess = $AzurelogApiMgmt
+Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $AzureLogAnalyticsApiAccess -ErrorAction Stop
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
