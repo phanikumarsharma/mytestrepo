@@ -117,7 +117,7 @@ if ($replyUrls -NotContains $newReplyUrl) {
                     $clientappreq.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
                 }
                 #Setting up the WVD Required Access to Client Application
-				 Set-AzureADApplication -ObjectId $clientAdApp.ObjectId -RequiredResourceAccess $clientappreq -ErrorAction Stop
+				 Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $clientappreq -ErrorAction Stop
 
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
