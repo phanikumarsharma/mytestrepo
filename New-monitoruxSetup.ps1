@@ -54,10 +54,8 @@ Invoke-RestMethod -Uri $apiURL -Headers @{Authorization=("Basic {0}" -f $base64A
 $GetWebApp = Get-AzureRmWebApp -Name $WebApp -ResourceGroupName $ResourceGroupName
 $WebURL = $GetWebApp.DefaultHostName         
 $redirectURL="https://"+"$WebURL"
-$Psswd = $Password | ConvertTo-SecureString -asPlainText -Force
-$Credential = New-Object System.Management.Automation.PSCredential($Username,$Psswd)
 #Install-Module -Name AzureAD
-Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Credential
+Connect-AzureAD -AzureEnvironmentName AzureCloud -Credential $Cred
 $modules="https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/testappreg1106.ps1"
 Invoke-WebRequest -Uri $modules -OutFile "C:\testappreg1106.ps1"
 Set-Location "C:\"
