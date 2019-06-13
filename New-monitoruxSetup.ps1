@@ -113,7 +113,7 @@ $AzureLogAnalyticsApiAccess.ResourceAppId = $AzureLogAnalyticsApiPrincipal.AppId
 foreach($permission in $AzureLogAnalyticsApiPrincipal.Oauth2Permissions){
     $AzureLogAnalyticsApiAccess.ResourceAccess += New-Object -TypeName "Microsoft.Open.AzureAD.Model.ResourceAccess" -ArgumentList $permission.Id,"Scope"
 }
-Set-AzureADApplication -ObjectId "1ccc6a40-d849-4784-8f0f-ac6b4ca77704" -RequiredResourceAccess $AzureLogAnalyticsApiAccess,$AzureWVDApiAccess -ErrorAction Stop
+Set-AzureADApplication -ObjectId $app.ObjectId -RequiredResourceAccess $AzureLogAnalyticsApiAccess,$AzureWVDApiAccess -ErrorAction Stop
 
 New-PSDrive -Name RemoveAccount -PSProvider FileSystem -Root "C:\" | Out-Null
 @"
