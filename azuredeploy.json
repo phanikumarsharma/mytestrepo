@@ -29,7 +29,8 @@
         }
     },
     "variables": {
-        "accountName": "monitorux-automationAccount",
+        "uniquestr": "[uniqueString(resourceGroup().id, deployment().name)]",
+        "accountName": "[concat('monitorux-automationAccount','-',variables('uniquestr'))]",
         "credentialName": "DefaultAzureCredential",
         "runbookName": "monitoruxbook",
         "hostingPlanName": "[concat(parameters('WebAppName'),'-SPlan')]",
@@ -39,6 +40,7 @@
         "scriptUri": "https://raw.githubusercontent.com/phanikumarsharma/mytestrepo/master/New-monitoruxSetup.ps1",
         "fileURI": "[concat(variables('baseURL'),'/wvd-monitoring-ux.zip')]",
         "sku": "Free",
+ 
         "automationVariables": [
             {
                 "name": "Username",
