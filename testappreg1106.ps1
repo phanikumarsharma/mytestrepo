@@ -67,7 +67,7 @@ $clientappdisplayname = $WebApp.ToLowerInvariant() + $uniquesubscriptionid.ToLow
 $azureAdApplication=New-AzureADApplication -DisplayName $clientappdisplayname -ReplyUrls $redirectURL -PublicClient $true -AvailableToOtherTenants $false -Verbose -ErrorAction Stop
 $appId = $azureAdApplication.ApplicationId
 Write-Output "Azure AAD Application creation completed successfully (Application Id: $appId)" -Verbose
-<#
+
 #Create new SPN
 Write-Output "Creating a new SPN" -Verbose
 $spn = New-AzureRmADServicePrincipal -ApplicationId $appId
@@ -80,7 +80,7 @@ Start-Sleep 20
 Write-Output "Assigning role ($spnRole) to SPN App ($appId)" -Verbose
 New-AzureRmRoleAssignment -RoleDefinitionName $spnRole -ServicePrincipalName $appId
 Write-Output "SPN role assignment completed successfully" -Verbose
-#>
+
 #Print the values
 Write-Output "`nCopy and Paste below values for Service Connection" -Verbose
 Write-Output "Service Principal Id: $appId"
